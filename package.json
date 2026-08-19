@@ -1,0 +1,24 @@
+{
+  "name": "task-orders",
+  "version": "1.0.0",
+  "description": "Task Orders Management System",
+  "homepage": "https://github.com/Artem-WebDeveloper/task-orders#readme",
+  "bugs": {
+    "url": "https://github.com/Artem-WebDeveloper/task-orders/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Artem-WebDeveloper/task-orders.git"
+  },
+  "license": "MIT",
+  "author": "Artem",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend"
+  }
+}
