@@ -4,7 +4,8 @@
   "type": "module",
   "main": "app.ts",
   "scripts": {
-    "dev": "tsx --watch --env-file=.env src/app.ts",
+    "dev": "tsx --watch --env-file=.env src/server.ts",
+    "prod": "NODE_ENV=production tsx --watch --env-file=.env src/server.ts",
     "lint": "eslint .",
     "db:seed": "npx tsx --env-file=.env src/seed.ts",
     "db:drop": "npx tsx --env-file=.env src/seed.ts --delete"
