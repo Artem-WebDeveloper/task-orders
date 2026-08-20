@@ -1,8 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-
-export const ROLE_CODES = ['operator', 'team'] as const;
-
-export type RoleCode = (typeof ROLE_CODES)[number];
+import { ROLE_CODES, type RoleCode } from '@task-orders/shared';
 
 @Entity('roles')
 export class Role {

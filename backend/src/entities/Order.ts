@@ -1,9 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, Index } from 'typeorm';
+import { ORDER_STATUSES, type OrderStatus } from '@task-orders/shared';
 import { User } from './User.ts';
-
-export const ORDER_STATUSES = ['new', 'in_progress', 'done'] as const;
-
-export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 @Entity('orders')
 export class Order {

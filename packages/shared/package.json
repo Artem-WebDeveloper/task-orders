@@ -1,0 +1,11 @@
+{
+  "name": "@task-orders/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "types": "index.ts",
+  "type": "module",
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}
