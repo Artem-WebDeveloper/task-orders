@@ -12,6 +12,6 @@ export class Role {
   @Column({ type: 'varchar' })
   name!: string;
 
-  @Column({ type: 'enum', enum: ROLE_CODES })
+  @Column({ type: 'enum', enum: ROLE_CODES, unique: true })
   code!: RoleCode;
 }

@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Role } from './Role.ts';
+import { Order } from './Order.ts';
 
 @Entity('users')
 export class User {
@@ -18,4 +19,7 @@ export class User {
   @ManyToOne(() => Role, { eager: true })
   @JoinColumn({ name: 'role_id' })
   role!: Role;
+
+  @OneToMany(() => Order, (order) => order.assignee)
+  assignedOrders!: Order[];
 }
