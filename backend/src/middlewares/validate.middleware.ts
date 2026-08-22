@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
-import { ZodObject, ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 import AppError from '../utils/AppError.ts';
 
-function validate(schema: ZodObject) {
+export function validate(schema: z.ZodType) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       req.body = await schema.parseAsync(req.body);
@@ -17,4 +17,12 @@ function validate(schema: ZodObject) {
   };
 }
 
-export default validate;
+export function validateParams(schema: z.ZodType) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.params);
+    if (!result.success) {
+      return next(new AppError('Invalid order id', 400));
+    }
+    next();
+  };
+}
