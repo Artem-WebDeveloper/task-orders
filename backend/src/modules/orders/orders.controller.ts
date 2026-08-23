@@ -35,6 +35,10 @@ export const updateOrder = catchAsync(async (req: Request, res: Response) => {
 
 export const updateStatus = catchAsync(async (req: Request, res: Response) => {
   const uuid = getRouteParam(req.params.uuid, 'order id');
-  // const result = await ordersService.changeStatus(uuid);
-  res.status(200).json({ status: 'success', message: 'It has not been implemented yet' });
+  const updatedOrder = await ordersService.changeStatus(uuid, req.body.status, req.user!);
+  res.status(200).json({
+    status: 'success',
+    message: `Status has been changed to '${req.body.status}'`,
+    data: { order: updatedOrder },
+  });
 });

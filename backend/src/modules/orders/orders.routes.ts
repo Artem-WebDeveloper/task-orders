@@ -1,7 +1,12 @@
 import express from 'express';
 import * as ordersController from './orders.controller.ts';
 import { validate, validateParams } from '../../middlewares/validate.middleware.ts';
-import { createOrderSchema, orderParamsSchema, updateOrderSchema } from '@task-orders/shared';
+import {
+  changeOrderStatusSchema,
+  createOrderSchema,
+  orderParamsSchema,
+  updateOrderSchema,
+} from '@task-orders/shared';
 import { protect, restrictTo } from '../../middlewares/auth.middleware.ts';
 
 const router = express.Router();
@@ -32,8 +37,8 @@ router.patch(
 router.patch(
   '/:uuid/status',
   restrictTo('team'),
-  // validateParams(orderParamsSchema),
-  // validate(updateOrderSchema),
+  validateParams(orderParamsSchema),
+  validate(changeOrderStatusSchema),
   ordersController.updateStatus,
 );
 

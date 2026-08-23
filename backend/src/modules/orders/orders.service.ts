@@ -1,8 +1,9 @@
-import type { CreateOrderDto, UpdateOrderDto } from '@task-orders/shared';
+import type { CreateOrderDto, OrderStatus, UpdateOrderDto } from '@task-orders/shared';
 import { AppDataSource } from '../../data-source.ts';
 import { Order } from '../../entities/Order.ts';
 import { User } from '../../entities/User.ts';
 import AppError from '../../utils/AppError.ts';
+import { canTransition } from './orders.status-transitions.ts';
 
 const orderRepo = AppDataSource.getRepository(Order);
 const userRepo = AppDataSource.getRepository(User);
@@ -71,6 +72,28 @@ export const remove = async (orderId: string) => {
   if (result.affected === 0) {
     throw new AppError('Order not found', 404);
   }
+};
+
+export const changeStatus = async (orderId: string, newStatus: OrderStatus, currentUser: User) => {
+  const order = await orderRepo.findOne({
+    where: { uuid: orderId },
+    relations: { assignee: true },
+  });
+
+  if (!order) {
+    throw new AppError('Order not found', 404);
+  }
+
+  if (order.assignee?.uuid !== currentUser.uuid) {
+    throw new AppError('You are not assigned to this order', 403);
+  }
+
+  if (!canTransition(order.status, newStatus)) {
+    throw new AppError(`Cannot transition from ${order.status} to ${newStatus}`, 400);
+  }
+
+  order.status = newStatus;
+  return orderRepo.save(order);
 };
 
 async function resolveAssignee(assigneeInput: string | null | undefined) {

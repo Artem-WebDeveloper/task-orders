@@ -21,6 +21,10 @@ export const updateOrderSchema = createOrderSchema
     message: 'Некорректные данные. Нечего обновлять!',
   });
 
+export const changeOrderStatusSchema = createOrderSchema.pick({
+  status: true,
+});
+
 export type CreateOrderDto = z.infer<typeof createOrderSchema>;
 
 export type UpdateOrderDto = z.infer<typeof updateOrderSchema>;
