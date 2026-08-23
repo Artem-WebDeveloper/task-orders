@@ -4,13 +4,13 @@ import catchAsync from '../../utils/catchAsync.ts';
 import { getRouteParam } from '../../utils/getRouteParam.ts';
 
 export const getOrders = catchAsync(async (req: Request, res: Response) => {
-  const orders = await ordersService.findAll();
+  const orders = await ordersService.findAll(req.user!);
   res.status(200).json({ status: 'success', results: orders.length, data: { orders } });
 });
 
 export const getOrder = catchAsync(async (req: Request, res: Response) => {
-  const uuid = getRouteParam(req.params.uuid, 'order id');
-  const order = await ordersService.findOne(uuid);
+  const orderId = getRouteParam(req.params.uuid, 'order id');
+  const order = await ordersService.findOne(req.user!, orderId);
   res.status(200).json({ status: 'success', data: { order } });
 });
 

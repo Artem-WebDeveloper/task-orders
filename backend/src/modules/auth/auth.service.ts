@@ -33,8 +33,6 @@ export const requestLogin = async ({ phone, password }: LoginUserDto) => {
 };
 
 export const verifyCode = async ({ verifyCode, userId }: VerifyCodeDto) => {
-  console.log(verifyCode, userId);
-
   const authCode = await redisClient.get(`verify:${userId}`);
 
   if (authCode !== verifyCode) {
@@ -44,7 +42,11 @@ export const verifyCode = async ({ verifyCode, userId }: VerifyCodeDto) => {
   await redisClient.del(`verify:${userId}`);
   const token = signToken(userId);
 
-  await redisClient.set(`session:${userId}`, token, { EX: 60 * 60 * 24 });
+  await redisClient.set(`session:${token}`, userId, { EX: 60 * 60 * 24 });
 
   return token;
+};
+
+export const logoutCurUser = async (token: string) => {
+  await redisClient.del(`session:${token}`);
 };

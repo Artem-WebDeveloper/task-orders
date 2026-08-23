@@ -7,18 +7,33 @@ import AppError from '../../utils/AppError.ts';
 const orderRepo = AppDataSource.getRepository(Order);
 const userRepo = AppDataSource.getRepository(User);
 
-export const findAll = async () => await orderRepo.find({ relations: { assignee: true } });
+export const findAll = async (currentUser: User) => {
+  if (currentUser.role.code === 'team') {
+    return await orderRepo.find({
+      relations: { assignee: true },
+      where: { assignee: { uuid: currentUser.uuid } },
+    });
+  }
 
-export const findOne = async (orderId: string) => {
-  const result = await orderRepo.findOne({
-    where: { uuid: orderId },
+  return await orderRepo.find({ relations: { assignee: true } });
+};
+
+export const findOne = async (currentUser: User, orderId: string) => {
+  const where =
+    currentUser.role.code === 'team'
+      ? { uuid: orderId, assignee: { uuid: currentUser.uuid } }
+      : { uuid: orderId };
+
+  const order = await orderRepo.findOne({
+    where,
     relations: { assignee: true },
   });
 
-  if (!result) {
+  if (!order) {
     throw new AppError('Order not found', 404);
   }
-  return result;
+
+  return order;
 };
 
 export const create = async (data: CreateOrderDto) => {

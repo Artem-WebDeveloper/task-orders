@@ -11,3 +11,8 @@ export const confirmLogin = catchAsync(async (req: Request, res: Response) => {
   const token = await authService.verifyCode(req.body);
   res.status(200).json({ status: 'success', message: 'You are logged in', token });
 });
+
+export const logout = catchAsync(async (req: Request, res: Response) => {
+  await authService.logoutCurUser(req.token!);
+  res.status(204).send();
+});
