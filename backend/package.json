@@ -1,0 +1,36 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "app.ts",
+  "scripts": {
+    "dev": "tsx --watch --env-file=.env src/server.ts",
+    "prod": "NODE_ENV=production tsx --watch --env-file=.env src/server.ts",
+    "lint": "eslint .",
+    "db:seed": "npx tsx --env-file=.env src/seed.ts",
+    "db:drop": "npx tsx --env-file=.env src/seed.ts --delete"
+  },
+  "dependencies": {
+    "@task-orders/shared": "^1.0.0",
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.6.2",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.0",
+    "redis": "^6.2.1",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^1.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.2.0",
+    "eslint": "^10.8.1",
+    "globals": "^17.11.0",
+    "tsx": "^4.23.12",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.67.0"
+  }
+}
