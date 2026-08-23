@@ -16,3 +16,7 @@ export const logout = catchAsync(async (req: Request, res: Response) => {
   await authService.logoutCurUser(req.token!);
   res.status(204).send();
 });
+
+export const getMe = catchAsync(async (req: Request, res: Response) => {
+  res.status(200).json({ status: 'success', data: { user: req.user } });
+});
