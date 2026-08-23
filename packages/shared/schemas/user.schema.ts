@@ -7,3 +7,10 @@ export const createUserSchema = z.object({
   password: z.string().min(6, 'Пароль минимум 6 символов'),
   role: z.enum(ROLE_CODES),
 });
+
+export const loginUserSchema = createUserSchema.pick({
+  phone: true,
+  password: true,
+});
+
+export type LoginUserDto = z.infer<typeof loginUserSchema>;

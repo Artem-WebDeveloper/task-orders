@@ -1,5 +1,6 @@
 import app from './app.ts';
 import { AppDataSource } from './data-source.ts';
+import { redisClient } from './redis-client.ts';
 
 process.on('uncaughtException', (err: Error) => {
   console.log('UNCAUGHT EXCEPTION! Shutting down...');
@@ -13,6 +14,9 @@ const startServer = async () => {
   try {
     await AppDataSource.initialize();
     console.log('Database connected successfully!');
+
+    await redisClient.connect();
+    console.log('Redis connected successfully!');
 
     const server = app.listen(port, () => {
       console.log(`App running on port ${port}`);
