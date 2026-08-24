@@ -37,7 +37,6 @@ export function RequireRole({ role }: { role: RoleCode }) {
   return <Outlet />;
 }
 
-/** Отправляет авторизованного пользователя на его домашний раздел по роли. */
 export function RoleHomeRedirect() {
   const { user } = useAuth();
 

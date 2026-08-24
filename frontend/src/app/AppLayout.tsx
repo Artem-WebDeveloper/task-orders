@@ -52,7 +52,7 @@ export function AppLayout() {
       </header>
 
       <div className="flex flex-1">
-        <aside className="bg-sidebar text-sidebar-foreground flex w-56 shrink-0 flex-col border-r">
+        <aside className="bg-sidebar text-sidebar-foreground flex w-56 shrink-0 flex-col">
           <nav className="flex flex-1 flex-col gap-1 p-2">
             {navItems.map(({ to, label, icon: Icon }) => (
               <NavLink

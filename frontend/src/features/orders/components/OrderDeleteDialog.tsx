@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-import type { ApiOrder } from '@/shared/api/types';
-import { useDeleteOrder } from '../hooks/useOrders';
-import { formatExecutionAt } from '../lib/format';
+import type { ApiOrder } from "@/shared/api/types";
+import { useDeleteOrder } from "../hooks/useOrders";
+import { formatExecutionAt } from "../lib/format";
 
-import { Button } from '@/shared/ui/button';
+import { Button } from "@/shared/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,14 +12,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/shared/ui/dialog';
+} from "@/shared/ui/dialog";
 
 interface OrderDeleteDialogProps {
   order: ApiOrder | null;
   onOpenChange: (open: boolean) => void;
 }
 
-export function OrderDeleteDialog({ order, onOpenChange }: OrderDeleteDialogProps) {
+export function OrderDeleteDialog({
+  order,
+  onOpenChange,
+}: OrderDeleteDialogProps) {
   const deleteMutation = useDeleteOrder();
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +32,7 @@ export function OrderDeleteDialog({ order, onOpenChange }: OrderDeleteDialogProp
       await deleteMutation.mutateAsync(order.uuid);
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Не удалось удалить наряд');
+      setError(e instanceof Error ? e.message : "Не удалось удалить наряд");
     }
   };
 
@@ -39,13 +42,18 @@ export function OrderDeleteDialog({ order, onOpenChange }: OrderDeleteDialogProp
         <DialogHeader>
           <DialogTitle>Удалить наряд?</DialogTitle>
           <DialogDescription>
-            Наряд по адресу «{order?.address}» от {order && formatExecutionAt(order.executionAt)}
-            будет удалён безвозвратно.
+            Наряд по адресу «{order?.address}» от{" "}
+            {order && formatExecutionAt(order.executionAt)} будет удалён
+            безвозвратно.
           </DialogDescription>
         </DialogHeader>
         {error && <p className="text-destructive text-sm">{error}</p>}
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
             Отмена
           </Button>
           <Button
@@ -54,7 +62,7 @@ export function OrderDeleteDialog({ order, onOpenChange }: OrderDeleteDialogProp
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
           >
-            {deleteMutation.isPending ? 'Удаляем...' : 'Удалить'}
+            {deleteMutation.isPending ? "Удаляем..." : "Удалить"}
           </Button>
         </DialogFooter>
       </DialogContent>

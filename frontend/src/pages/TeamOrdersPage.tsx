@@ -1,3 +1,5 @@
+import { TeamOrders } from "@/features/orders";
+
 export function TeamOrdersPage() {
-  return <div>TEAM ORDER PAGE</div>;
+  return <TeamOrders />;
 }

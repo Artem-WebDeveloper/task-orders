@@ -1,20 +1,30 @@
-import { useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { format, parseISO } from "date-fns";
+import { ru } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
 import {
   createOrderSchema,
   ORDER_STATUSES,
   type OrderStatus,
-} from '@task-orders/shared';
+} from "@task-orders/shared";
 
-import { listTeams, teamsQueryKey } from '@/features/teams';
-import type { ApiOrder } from '@/shared/api/types';
-import { toDatetimeLocalValue, ORDER_STATUS_LABELS } from '../lib/format';
-import { useCreateOrder, useUpdateOrder } from '../hooks/useOrders';
+import { listTeams, teamsQueryKey } from "@/features/teams";
+import type { ApiOrder } from "@/shared/api/types";
+import {
+  joinDateTimeLocal,
+  splitDateTimeLocal,
+  toDatetimeLocalValue,
+  ORDER_STATUS_LABELS,
+} from "../lib/format";
+import { useCreateOrder, useUpdateOrder } from "../hooks/useOrders";
 
-import { Button } from '@/shared/ui/button';
+import { Button } from "@/shared/ui/button";
+import { Calendar } from "@/shared/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import {
   Dialog,
   DialogContent,
@@ -22,22 +32,28 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/shared/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/shared/ui/form';
-import { Input } from '@/shared/ui/input';
+} from "@/shared/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/shared/ui/form";
+import { Input } from "@/shared/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/shared/ui/select';
-import { Textarea } from '@/shared/ui/textarea';
+} from "@/shared/ui/select";
+import { Textarea } from "@/shared/ui/textarea";
 
-/** Поля формы; executionAt остаётся строкой datetime-local — бэкенд сам коэрсит её в Date. */
 const orderFormSchema = z.object({
-  assignee: z.uuid({ message: 'Некорректный исполнитель' }).or(z.literal('')),
-  executionAt: z.string().min(1, 'Укажите дату выполнения'),
+  assignee: z.uuid({ message: "Некорректный исполнитель" }).or(z.literal("")),
+  executionAt: z.string().min(1, "Укажите дату выполнения"),
   address: createOrderSchema.shape.address,
   description: createOrderSchema.shape.description,
   status: createOrderSchema.shape.status,
@@ -45,16 +61,19 @@ const orderFormSchema = z.object({
 
 type OrderFormValues = z.infer<typeof orderFormSchema>;
 
-const NO_ASSIGNEE = '';
+const NO_ASSIGNEE = "";
 
 interface OrderFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Наряд для редактирования; без него — режим создания. */
   order?: ApiOrder | null;
 }
 
-export function OrderFormDialog({ open, onOpenChange, order }: OrderFormDialogProps) {
+export function OrderFormDialog({
+  open,
+  onOpenChange,
+  order,
+}: OrderFormDialogProps) {
   const isEdit = !!order;
 
   const teamsQuery = useQuery({
@@ -66,10 +85,10 @@ export function OrderFormDialog({ open, onOpenChange, order }: OrderFormDialogPr
   const defaultValues = useMemo<OrderFormValues>(
     () => ({
       assignee: order?.assignee?.uuid ?? NO_ASSIGNEE,
-      executionAt: order ? toDatetimeLocalValue(order.executionAt) : '',
-      address: order?.address ?? '',
-      description: order?.description ?? '',
-      status: order?.status ?? 'new',
+      executionAt: order ? toDatetimeLocalValue(order.executionAt) : "",
+      address: order?.address ?? "",
+      description: order?.description ?? "",
+      status: order?.status ?? "new",
     }),
     [order],
   );
@@ -79,13 +98,12 @@ export function OrderFormDialog({ open, onOpenChange, order }: OrderFormDialogPr
     defaultValues,
   });
 
-  // при открытии модалки (и смене редактируемого наряда) сбрасываем форму
   useEffect(() => {
     if (open) form.reset(defaultValues);
   }, [open, defaultValues, form]);
 
   const createMutation = useCreateOrder();
-  const updateMutation = useUpdateOrder(order?.uuid ?? '');
+  const updateMutation = useUpdateOrder(order?.uuid ?? "");
   const mutation = isEdit ? updateMutation : createMutation;
 
   const onSubmit = form.handleSubmit(async (values) => {
@@ -101,8 +119,9 @@ export function OrderFormDialog({ open, onOpenChange, order }: OrderFormDialogPr
       await mutation.mutateAsync(dto);
       onOpenChange(false);
     } catch (error) {
-      form.setError('root', {
-        message: error instanceof Error ? error.message : 'Не удалось сохранить наряд',
+      form.setError("root", {
+        message:
+          error instanceof Error ? error.message : "Не удалось сохранить наряд",
       });
     }
   });
@@ -111,11 +130,13 @@ export function OrderFormDialog({ open, onOpenChange, order }: OrderFormDialogPr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Редактирование наряда' : 'Новый наряд'}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Редактирование наряда" : "Новый наряд"}
+          </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? 'Измените данные и сохраните наряд'
-              : 'Заполните данные и при необходимости назначьте бригаду'}
+              ? "Измените данные и сохраните наряд"
+              : "Заполните данные и при необходимости назначьте бригаду"}
           </DialogDescription>
         </DialogHeader>
 
@@ -124,15 +145,62 @@ export function OrderFormDialog({ open, onOpenChange, order }: OrderFormDialogPr
             <FormField
               control={form.control}
               name="executionAt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Дата выполнения</FormLabel>
-                  <FormControl>
-                    <Input type="datetime-local" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const { date: datePart, time: timePart } = splitDateTimeLocal(
+                  field.value,
+                );
+                const selectedDate = datePart ? parseISO(datePart) : undefined;
+
+                return (
+                  <FormItem>
+                    <FormLabel>Дата выполнения</FormLabel>
+                    <div className="flex gap-3">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              data-empty={!datePart}
+                              className="data-[empty=true]:text-muted-foreground w-[70%] justify-start text-left font-normal"
+                            >
+                              <CalendarIcon />
+                              {selectedDate
+                                ? format(selectedDate, "d MMMM yyyy", {
+                                    locale: ru,
+                                  })
+                                : "Выберите дату"}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            locale={ru}
+                            selected={selectedDate}
+                            onSelect={(day) =>
+                              field.onChange(joinDateTimeLocal(day, timePart))
+                            }
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <Input
+                        className="flex-1"
+                        type="time"
+                        aria-label="Время выполнения"
+                        value={timePart}
+                        disabled={!datePart}
+                        onChange={(e) =>
+                          field.onChange(
+                            joinDateTimeLocal(selectedDate, e.target.value),
+                          )
+                        }
+                      />
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             <FormField
@@ -156,7 +224,11 @@ export function OrderFormDialog({ open, onOpenChange, order }: OrderFormDialogPr
                 <FormItem>
                   <FormLabel>Описание</FormLabel>
                   <FormControl>
-                    <Textarea placeholder='Например: "Замена счётчика"' rows={3} {...field} />
+                    <Textarea
+                      placeholder='Например: "Замена счётчика"'
+                      rows={3}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -197,7 +269,9 @@ export function OrderFormDialog({ open, onOpenChange, order }: OrderFormDialogPr
                   <FormItem>
                     <FormLabel>Статус</FormLabel>
                     <Select
-                      onValueChange={(value: string) => field.onChange(value as OrderStatus)}
+                      onValueChange={(value: string) =>
+                        field.onChange(value as OrderStatus)
+                      }
                       value={field.value}
                     >
                       <FormControl>
@@ -220,15 +294,21 @@ export function OrderFormDialog({ open, onOpenChange, order }: OrderFormDialogPr
             </div>
 
             {form.formState.errors.root && (
-              <p className="text-destructive text-sm">{form.formState.errors.root.message}</p>
+              <p className="text-destructive text-sm">
+                {form.formState.errors.root.message}
+              </p>
             )}
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
                 Отмена
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? 'Сохраняем...' : 'Сохранить'}
+                {mutation.isPending ? "Сохраняем..." : "Сохранить"}
               </Button>
             </DialogFooter>
           </form>

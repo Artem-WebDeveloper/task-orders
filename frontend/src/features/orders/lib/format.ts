@@ -18,3 +18,15 @@ export function toDatetimeLocalValue(value: Date | string): string {
   const date = typeof value === 'string' ? parseISO(value) : value;
   return format(date, "yyyy-MM-dd'T'HH:mm");
 }
+
+/** Строка datetime-local 'yyyy-MM-ddTHH:mm' → { date: 'yyyy-MM-dd', time: 'HH:mm' }. */
+export function splitDateTimeLocal(value: string): { date: string; time: string } {
+  const [date = '', time = ''] = value.split('T');
+  return { date, time };
+}
+
+/** Date + 'HH:mm' → строка datetime-local (локальная зона, как и раньше). */
+export function joinDateTimeLocal(date: Date | undefined, time: string): string {
+  if (!date) return '';
+  return `${format(date, 'yyyy-MM-dd')}T${time || '00:00'}`;
+}

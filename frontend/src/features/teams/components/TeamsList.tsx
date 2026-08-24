@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 
-import { listTeams, teamsQueryKey } from '../api';
+import { listTeams, teamsQueryKey } from "../api";
 
 import {
   Table,
@@ -9,9 +9,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/shared/ui/table';
+} from "@/shared/ui/table";
 
-/** Экран оператора: список бригад. */
 export function TeamsList() {
   const teamsQuery = useQuery({
     queryKey: teamsQueryKey,
