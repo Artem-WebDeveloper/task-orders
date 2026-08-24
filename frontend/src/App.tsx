@@ -1,14 +1,12 @@
-import { Button } from "./shared/ui/button";
+import { RouterProvider } from 'react-router';
 
-function App() {
+import { AppProviders } from './app/providers';
+import { router } from './app/router';
+
+export default function App() {
   return (
-    <div>
-      <p className="">Hello</p>
-      <Button variant="default" onClick={() => console.log("work")}>
-        BUTTON TEST
-      </Button>
-    </div>
+    <AppProviders>
+      <RouterProvider router={router} />
+    </AppProviders>
   );
 }
-
-export default App;
