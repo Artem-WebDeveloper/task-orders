@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { CreateOrderDto, OrderStatus, UpdateOrderDto } from '@task-orders/shared';
 
-import * as ordersApi from '@/api/orders.api';
+import * as ordersApi from '../api';
 
 export const ordersQueryKey = ['orders'] as const;
 

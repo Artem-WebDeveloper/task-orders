@@ -1,8 +1,8 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext } from "react";
 
-import type { ApiUser } from '@/api/types';
+import type { ApiUser } from "@/shared/api/types";
 
-export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+export type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
 export interface AuthContextValue {
   status: AuthStatus;
@@ -16,7 +16,7 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth должен использоваться внутри AuthProvider');
+    throw new Error("useAuth must be used inside AuthProvider");
   }
   return context;
 }

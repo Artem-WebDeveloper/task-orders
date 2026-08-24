@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import type { ApiOrder } from '@/api/types';
-import { useDeleteOrder } from '../model/use-orders';
+import type { ApiOrder } from '@/shared/api/types';
+import { useDeleteOrder } from '../hooks/useOrders';
 import { formatExecutionAt } from '../lib/format';
 
 import { Button } from '@/shared/ui/button';

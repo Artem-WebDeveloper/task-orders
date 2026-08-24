@@ -1,16 +1,17 @@
-import { NavLink, Outlet, useNavigate } from 'react-router';
-import { ClipboardList, LogOut, Users } from 'lucide-react';
+import { NavLink, Outlet, useNavigate } from "react-router";
+import { ClipboardList, LogOut, Users } from "lucide-react";
 
-import { useAuth } from '@/features/auth/model/context';
+import { useAuth } from "@/features/auth";
+import { ROLE_HOME } from "./paths";
 
-import { Button } from '@/shared/ui/button';
+import { Button } from "@/shared/ui/button";
 
 const NAV_BY_ROLE = {
   operator: [
-    { to: '/operator/orders', label: 'Наряды', icon: ClipboardList },
-    { to: '/operator/teams', label: 'Бригады', icon: Users },
+    { to: ROLE_HOME.operator, label: "Наряды", icon: ClipboardList },
+    { to: "/operator/teams", label: "Бригады", icon: Users },
   ],
-  team: [{ to: '/team/orders', label: 'Мои наряды', icon: ClipboardList }],
+  team: [{ to: ROLE_HOME.team, label: "Мои наряды", icon: ClipboardList }],
 } as const;
 
 export function AppLayout() {
@@ -23,7 +24,7 @@ export function AppLayout() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/login', { replace: true });
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -40,11 +41,11 @@ export function AppLayout() {
               to={to}
               className={({ isActive }: { isActive: boolean }) =>
                 [
-                  'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   isActive
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
-                ].join(' ')
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
+                ].join(" ")
               }
             >
               <Icon className="size-4" />

@@ -1,17 +1,17 @@
-import { useMemo, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { ApiError, tokenStorage } from '@/api/http';
-import * as authApi from '@/api/auth.api';
+import { ApiError, tokenStorage } from "@/shared/api/http";
+import * as authApi from "../api";
 
-import { AuthContext } from './context';
+import { AuthContext } from "./context";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>(() => tokenStorage.get());
 
   const meQuery = useQuery({
-    queryKey: ['me', token],
+    queryKey: ["me", token],
     enabled: !!token,
     retry: false,
     staleTime: Infinity,
@@ -19,10 +19,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         return await authApi.me();
       } catch (error) {
-        // сессия отозвана на сервере — разлогиниваемся локально
         if (error instanceof ApiError && error.status === 401) {
           tokenStorage.clear();
-          queryClient.removeQueries({ queryKey: ['me'] });
+          queryClient.removeQueries({ queryKey: ["me"] });
           setToken(null);
         }
         throw error;
@@ -33,26 +32,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       status: (!token
-        ? 'unauthenticated'
+        ? "unauthenticated"
         : meQuery.isPending
-          ? 'loading'
+          ? "loading"
           : meQuery.isError
-            ? 'unauthenticated'
-            : 'authenticated') as 'loading' | 'authenticated' | 'unauthenticated',
+            ? "unauthenticated"
+            : "authenticated") as
+        "loading" | "authenticated" | "unauthenticated",
       user: meQuery.data ?? null,
       signIn(nextToken: string) {
-        // профиль подтянется автоматически запросом ['me'] по новому токену
         tokenStorage.set(nextToken);
         setToken(nextToken);
       },
       async signOut() {
         try {
           await authApi.logout();
-        } catch {
-          // сессия могла уже истечь — всё равно чистим локально
-        }
+        } catch {}
         tokenStorage.clear();
-        queryClient.removeQueries({ queryKey: ['me'] });
+        queryClient.removeQueries({ queryKey: ["me"] });
         setToken(null);
       },
     }),

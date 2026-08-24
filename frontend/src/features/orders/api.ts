@@ -7,8 +7,8 @@ import type { z } from 'zod';
 
 import { changeOrderStatusSchema } from '@task-orders/shared';
 
-import { requestData, request } from './http';
-import type { ApiOrder } from './types';
+import { requestData, request } from '@/shared/api/http';
+import type { ApiOrder } from '@/shared/api/types';
 
 export type ChangeOrderStatusDto = z.infer<typeof changeOrderStatusSchema>;
 

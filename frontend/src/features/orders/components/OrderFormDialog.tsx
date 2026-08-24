@@ -9,11 +9,10 @@ import {
   type OrderStatus,
 } from '@task-orders/shared';
 
-import { listTeams } from '@/api/users.api';
-import type { ApiOrder } from '@/api/types';
-import { toDatetimeLocalValue } from '../lib/format';
-import { ORDER_STATUS_LABELS } from '../lib/format';
-import { useCreateOrder, useUpdateOrder } from '../model/use-orders';
+import { listTeams, teamsQueryKey } from '@/features/teams';
+import type { ApiOrder } from '@/shared/api/types';
+import { toDatetimeLocalValue, ORDER_STATUS_LABELS } from '../lib/format';
+import { useCreateOrder, useUpdateOrder } from '../hooks/useOrders';
 
 import { Button } from '@/shared/ui/button';
 import {
@@ -59,7 +58,7 @@ export function OrderFormDialog({ open, onOpenChange, order }: OrderFormDialogPr
   const isEdit = !!order;
 
   const teamsQuery = useQuery({
-    queryKey: ['users', 'teams'],
+    queryKey: teamsQueryKey,
     queryFn: listTeams,
     enabled: open,
   });

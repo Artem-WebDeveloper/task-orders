@@ -2,13 +2,13 @@ import { useState } from 'react';
 import type { OrderStatus } from '@task-orders/shared';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 
-import { ApiError } from '@/api/http';
-import type { ApiOrder } from '@/api/types';
-import { formatExecutionAt, ORDER_STATUS_LABELS } from '@/features/orders/lib/format';
-import { OrderStatusBadge } from '@/features/orders/ui/order-status-badge';
-import { OrderFormDialog } from '@/features/orders/ui/order-form-dialog';
-import { OrderDeleteDialog } from '@/features/orders/ui/order-delete-dialog';
-import { useOrders } from '@/features/orders/model/use-orders';
+import { ApiError } from '@/shared/api/http';
+import type { ApiOrder } from '@/shared/api/types';
+import { formatExecutionAt, ORDER_STATUS_LABELS } from '../lib/format';
+import { useOrders } from '../hooks/useOrders';
+import { OrderFormDialog } from './OrderFormDialog';
+import { OrderDeleteDialog } from './OrderDeleteDialog';
+import { OrderStatusBadge } from './OrderStatusBadge';
 
 import { Button } from '@/shared/ui/button';
 import {
@@ -36,7 +36,8 @@ const FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
   ),
 ];
 
-export function OperatorOrdersPage() {
+/** Экран оператора: список нарядов с фильтром и модалками создания/удаления. */
+export function OperatorOrders() {
   const ordersQuery = useOrders();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [formOpen, setFormOpen] = useState(false);
