@@ -47,7 +47,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async signOut() {
         try {
           await authApi.logout();
-        } catch {}
+        } catch (err) {
+          console.error(err);
+        }
         tokenStorage.clear();
         queryClient.removeQueries({ queryKey: ["me"] });
         setToken(null);

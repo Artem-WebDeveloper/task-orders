@@ -1,16 +1,15 @@
-import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import type { LoginUserDto } from '@task-orders/shared';
-import { loginUserSchema } from '@task-orders/shared';
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import type { LoginUserDto } from "@task-orders/shared";
+import { loginUserSchema } from "@task-orders/shared";
 
-import * as authApi from '../api';
-import { extractErrorMessage } from '../lib/extractErrorMessage';
-import { MessageSlot, StepDots } from './Parts';
+import { useLogin } from "../hooks/useLogin";
+import { extractErrorMessage } from "../lib/extractErrorMessage";
+import { MessageSlot, StepDots } from "./Parts";
 
-import { Button } from '@/shared/ui/button';
+import { Button } from "@/shared/ui/button";
 import {
   Card,
   CardAction,
@@ -18,7 +17,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/shared/ui/card';
+} from "@/shared/ui/card";
 import {
   Form,
   FormControl,
@@ -26,8 +25,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/shared/ui/form';
-import { Input } from '@/shared/ui/input';
+} from "@/shared/ui/form";
+import { Input } from "@/shared/ui/input";
 
 interface LoginFormProps {
   onSuccess: (userId: string) => void;
@@ -36,19 +35,20 @@ interface LoginFormProps {
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
-  const loginMutation = useMutation({
-    mutationFn: (dto: LoginUserDto) => authApi.login(dto),
-    onSuccess: ({ userId }) => onSuccess(userId),
-    onError: (error) =>
-      form.setError('root', { message: extractErrorMessage(error) }),
-  });
+  const login = useLogin();
 
   const form = useForm<LoginUserDto>({
     resolver: zodResolver(loginUserSchema),
-    defaultValues: { phone: '', password: '' },
+    defaultValues: { phone: "", password: "" },
   });
 
-  const onSubmit = form.handleSubmit((values) => loginMutation.mutate(values));
+  const onSubmit = form.handleSubmit((values) =>
+    login.mutate(values, {
+      onSuccess: ({ userId }) => onSuccess(userId),
+      onError: (error) =>
+        form.setError("root", { message: extractErrorMessage(error) }),
+    }),
+  );
 
   return (
     <Card>
@@ -91,7 +91,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                   <FormControl>
                     <div className="relative">
                       <Input
-                        type={showPassword ? 'text' : 'password'}
+                        type={showPassword ? "text" : "password"}
                         autoComplete="current-password"
                         className="pr-9"
                         {...field}
@@ -102,7 +102,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                         size="icon-xs"
                         tabIndex={-1}
                         aria-label={
-                          showPassword ? 'Скрыть пароль' : 'Показать пароль'
+                          showPassword ? "Скрыть пароль" : "Показать пароль"
                         }
                         onClick={() => setShowPassword((v) => !v)}
                         className="absolute inset-y-1 right-1 flex items-center"
@@ -124,14 +124,14 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                 </p>
               )}
             </MessageSlot>
-            <Button type="submit" disabled={loginMutation.isPending}>
-              {loginMutation.isPending ? (
+            <Button type="submit" disabled={login.isPending}>
+              {login.isPending ? (
                 <>
                   <Loader2 className="animate-spin" />
                   Отправляем...
                 </>
               ) : (
-                'Продолжить'
+                "Продолжить"
               )}
             </Button>
           </form>

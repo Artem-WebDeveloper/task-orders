@@ -1,17 +1,15 @@
-import { useNavigate } from 'react-router';
-import { useMutation } from '@tanstack/react-query';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { ArrowLeft, Info, Loader2 } from 'lucide-react';
-import type { VerifyCodeDto } from '@task-orders/shared';
-import { verifyCodeSchema } from '@task-orders/shared';
+import { useNavigate } from "react-router";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { ArrowLeft, Info, Loader2 } from "lucide-react";
+import type { VerifyCodeDto } from "@task-orders/shared";
+import { verifyCodeSchema } from "@task-orders/shared";
 
-import * as authApi from '../api';
-import { useAuth } from '../model/context';
-import { extractErrorMessage } from '../lib/extractErrorMessage';
-import { MessageSlot, StepDots } from './Parts';
+import { useVerifyCode } from "../hooks/useVerifyCode";
+import { extractErrorMessage } from "../lib/extractErrorMessage";
+import { MessageSlot, StepDots } from "./Parts";
 
-import { Button } from '@/shared/ui/button';
+import { Button } from "@/shared/ui/button";
 import {
   Card,
   CardAction,
@@ -19,7 +17,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/shared/ui/card';
+} from "@/shared/ui/card";
 import {
   Form,
   FormControl,
@@ -27,8 +25,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/shared/ui/form';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/shared/ui/input-otp';
+} from "@/shared/ui/form";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/shared/ui/input-otp";
 
 interface VerifyCodeFormProps {
   userId: string;
@@ -37,28 +35,23 @@ interface VerifyCodeFormProps {
 
 export function VerifyCodeForm({ userId, onBack }: VerifyCodeFormProps) {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
 
-  const verifyMutation = useMutation({
-    mutationFn: async (dto: VerifyCodeDto) => {
-      const { token } = await authApi.verify2fa(dto);
-      signIn(token);
-    },
-    // Профиль подтянется в AuthProvider по новому токену,
-    // а «/» редиректнет на домашний раздел по роли.
-    onSuccess: () => {
-      navigate('/', { replace: true });
-    },
-    onError: (error) =>
-      form.setError('root', { message: extractErrorMessage(error) }),
-  });
+  const verifyCode = useVerifyCode();
 
   const form = useForm<VerifyCodeDto>({
     resolver: zodResolver(verifyCodeSchema),
-    defaultValues: { userId, verifyCode: '' },
+    defaultValues: { userId, verifyCode: "" },
   });
 
-  const onSubmit = form.handleSubmit((values) => verifyMutation.mutate(values));
+  const onSubmit = form.handleSubmit((values) =>
+    verifyCode.mutate(values, {
+      onSuccess: () => {
+        navigate("/", { replace: true });
+      },
+      onError: (error) =>
+        form.setError("root", { message: extractErrorMessage(error) }),
+    }),
+  );
 
   return (
     <Card>
@@ -84,7 +77,7 @@ export function VerifyCodeForm({ userId, onBack }: VerifyCodeFormProps) {
                     <InputOTP
                       maxLength={6}
                       autoFocus
-                      disabled={verifyMutation.isPending}
+                      disabled={verifyCode.isPending}
                       value={field.value}
                       onChange={field.onChange}
                       containerClassName="justify-center pt-1 pb-1"
@@ -115,21 +108,21 @@ export function VerifyCodeForm({ userId, onBack }: VerifyCodeFormProps) {
                 В dev-режиме код подтверждения выводится в консоль бэкенда
               </span>
             </div>
-            <Button type="submit" disabled={verifyMutation.isPending}>
-              {verifyMutation.isPending ? (
+            <Button type="submit" disabled={verifyCode.isPending}>
+              {verifyCode.isPending ? (
                 <>
                   <Loader2 className="animate-spin" />
                   Проверяем...
                 </>
               ) : (
-                'Войти'
+                "Войти"
               )}
             </Button>
             <Button
               type="button"
               variant="ghost"
               onClick={onBack}
-              disabled={verifyMutation.isPending}
+              disabled={verifyCode.isPending}
             >
               <ArrowLeft />
               Назад
