@@ -105,7 +105,7 @@ export function OperatorOrders() {
       {!ordersQuery.isPending && !ordersQuery.error && (
         <>
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-muted/50">
               <TableRow>
                 <TableHead>Дата выполнения</TableHead>
                 <TableHead>Адрес</TableHead>
@@ -175,7 +175,7 @@ export function OperatorOrders() {
           </Table>
 
           {filteredOrders.length === 0 && (
-            <div className="rounded-lg border border-dashed p-10 text-center">
+            <div className="rounded-xl border border-dashed p-10 text-center">
               <p className="font-medium">
                 {orders.length === 0
                   ? "Нарядов пока нет"

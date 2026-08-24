@@ -73,6 +73,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                       placeholder="+79991234567"
                       type="tel"
                       autoComplete="tel"
+                      className="h-10 px-3 text-base md:text-base"
                       {...field}
                     />
                   </FormControl>
@@ -93,19 +94,19 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                       <Input
                         type={showPassword ? "text" : "password"}
                         autoComplete="current-password"
-                        className="pr-9"
+                        className="h-10 px-3 pr-9 text-base md:text-base"
                         {...field}
                       />
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon-xs"
+                        size="icon-sm"
                         tabIndex={-1}
                         aria-label={
                           showPassword ? "Скрыть пароль" : "Показать пароль"
                         }
                         onClick={() => setShowPassword((v) => !v)}
-                        className="absolute inset-y-1 right-1 flex items-center"
+                        className="absolute inset-y-1.5 right-1 flex items-center"
                       >
                         {showPassword ? <EyeOff /> : <Eye />}
                       </Button>

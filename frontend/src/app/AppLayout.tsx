@@ -5,6 +5,7 @@ import { useAuth } from "@/features/auth";
 import { ROLE_HOME } from "./paths";
 
 import { Button } from "@/shared/ui/button";
+import { ThemeToggle } from "@/shared/ui/theme-toggle";
 
 const NAV_BY_ROLE = {
   operator: [
@@ -29,17 +30,18 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-svh flex-col">
-      <header className="flex h-24 items-center justify-between border-b px-6">
+      <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b bg-background px-6">
         <div className="flex items-center gap-3 text-center">
-          <div className="border-primary/15 bg-primary/10 grid size-12 place-items-center rounded-2xl border shadow-sm">
-            <ClipboardList className="text-primary size-6" />
+          <div className="border-primary/15 bg-primary/10 grid size-9 place-items-center rounded-xl border shadow-xs">
+            <ClipboardList className="text-primary size-5" />
           </div>
           <div className="space-y-1">
-            <p className="text-lg leading-none font-semibold">Task Orders</p>
+            <p className="text-base leading-none font-semibold">Task Orders</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <div className="border-muted-foreground/50 border-r pr-4">
             <p className="text-sm font-medium">{user.fullname}</p>
             <p className="text-muted-foreground text-xs">{user.role.name}</p>
@@ -52,7 +54,7 @@ export function AppLayout() {
       </header>
 
       <div className="flex flex-1">
-        <aside className="bg-sidebar text-sidebar-foreground flex w-56 shrink-0 flex-col">
+        <aside className="bg-sidebar text-sidebar-foreground sticky top-16 flex h-[calc(100svh-4rem)] w-56 shrink-0 flex-col">
           <nav className="flex flex-1 flex-col gap-1 p-2">
             {navItems.map(({ to, label, icon: Icon }) => (
               <NavLink
@@ -62,7 +64,7 @@ export function AppLayout() {
                   [
                     "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-xs"
                       : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
                   ].join(" ")
                 }

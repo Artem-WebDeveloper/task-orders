@@ -31,7 +31,7 @@ export function TeamsList() {
       {teamsQuery.data && (
         <>
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-muted/50">
               <TableRow>
                 <TableHead>Название</TableHead>
                 <TableHead>Телефон</TableHead>
@@ -48,7 +48,7 @@ export function TeamsList() {
           </Table>
 
           {teamsQuery.data.length === 0 && (
-            <div className="rounded-lg border border-dashed p-10 text-center">
+            <div className="rounded-xl border border-dashed p-10 text-center">
               <p className="font-medium">Бригад пока нет</p>
               <p className="text-muted-foreground mt-1 text-sm">
                 Пользователи с ролью «бригада» появятся здесь после регистрации
