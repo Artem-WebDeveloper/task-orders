@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import bcrypt from 'bcryptjs';
+import { fileURLToPath } from 'url';
 
 import { AppDataSource } from './data-source.ts';
 import { User } from './entities/User.ts';
@@ -160,6 +161,6 @@ async function main() {
   }
 }
 
-if (process.argv[1]?.endsWith('seed.ts')) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main();
 }
