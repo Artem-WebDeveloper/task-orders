@@ -3,6 +3,7 @@ import type { ApiOrder } from "@/shared/api/types";
 import { QueryError } from "@/shared/ui/query-error";
 import { formatExecutionAt } from "../lib/format";
 import { useChangeOrderStatus, useOrders } from "../hooks/useOrders";
+import useOrderEvents from "../hooks/useOrderEvents";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { ConfirmActionDialog } from "./ConfirmActionDialog";
 import { OrderDetailsDialog } from "./OrderDetailsDialog";
@@ -20,6 +21,8 @@ import {
 export function TeamOrders() {
   const ordersQuery = useOrders();
   const changeStatus = useChangeOrderStatus();
+
+  useOrderEvents();
 
   const [completingOrder, setCompletingOrder] = useState<ApiOrder | null>(null);
   const [viewingOrder, setViewingOrder] = useState<ApiOrder | null>(null);

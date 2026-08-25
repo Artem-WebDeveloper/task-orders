@@ -2,9 +2,9 @@ const API_BASE = '/api/v1/';
 const TOKEN_KEY = 'task-orders.token';
 
 export const tokenStorage = {
-  get: () => localStorage.getItem(TOKEN_KEY),
-  set: (token: string) => localStorage.setItem(TOKEN_KEY, token),
-  clear: () => localStorage.removeItem(TOKEN_KEY),
+  get: () => sessionStorage.getItem(TOKEN_KEY),
+  set: (token: string) => sessionStorage.setItem(TOKEN_KEY, token),
+  clear: () => sessionStorage.removeItem(TOKEN_KEY),
 };
 
 export class ApiError extends Error {

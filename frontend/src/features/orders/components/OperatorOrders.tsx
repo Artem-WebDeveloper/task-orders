@@ -26,6 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/ui/table";
+import useOrderEvents from "../hooks/useOrderEvents";
 
 type StatusFilter = "all" | OrderStatus;
 
@@ -37,6 +38,8 @@ export function OperatorOrders() {
   const [editingOrder, setEditingOrder] = useState<ApiOrder | null>(null);
   const [deletingOrder, setDeletingOrder] = useState<ApiOrder | null>(null);
   const [viewingOrder, setViewingOrder] = useState<ApiOrder | null>(null);
+
+  useOrderEvents();
 
   const orders = ordersQuery.data ?? [];
   const filteredOrders =

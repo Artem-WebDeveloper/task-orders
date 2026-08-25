@@ -13,10 +13,14 @@ export const findAll = async (currentUser: User) => {
     return await orderRepo.find({
       relations: { assignee: true },
       where: { assignee: { uuid: currentUser.uuid } },
+      order: { executionAt: 'DESC' },
     });
   }
 
-  return await orderRepo.find({ relations: { assignee: true } });
+  return await orderRepo.find({
+    relations: { assignee: true },
+    order: { executionAt: 'DESC' },
+  });
 };
 
 export const findOne = async (currentUser: User, orderId: string) => {
@@ -67,11 +71,18 @@ export const update = async (orderId: string, updatedData: UpdateOrderDto) => {
 };
 
 export const remove = async (orderId: string) => {
-  const result = await orderRepo.delete({ uuid: orderId });
+  const order = await orderRepo.findOne({
+    where: { uuid: orderId },
+    relations: { assignee: true },
+  });
 
-  if (result.affected === 0) {
+  if (!order) {
     throw new AppError('Order not found', 404);
   }
+
+  await orderRepo.remove(order);
+
+  return order;
 };
 
 export const changeStatus = async (orderId: string, newStatus: OrderStatus, currentUser: User) => {
