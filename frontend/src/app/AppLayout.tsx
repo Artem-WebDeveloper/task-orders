@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { NavLink, Outlet } from "react-router";
 import { ClipboardList, LogOut, Users } from "lucide-react";
 
@@ -75,7 +76,9 @@ export function AppLayout() {
         </aside>
 
         <main className="flex-1 p-4 pb-24 sm:p-6 sm:pb-6">
-          <Outlet />
+          <Suspense fallback={null}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
 
