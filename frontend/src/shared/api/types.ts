@@ -1,6 +1,6 @@
 import type { OrderStatus, RoleCode } from '@task-orders/shared';
 
-/** Пользователь в том виде, в котором его отдаёт бэкенд (JSON сущности User). */
+
 export interface ApiUser {
   uuid: string;
   fullname: string;
@@ -12,7 +12,7 @@ export interface ApiUser {
   };
 }
 
-/** Наряд в том виде, в котором его отдаёт бэкенд (JSON сущности Order). */
+
 export interface ApiOrder {
   uuid: string;
   executionAt: string;

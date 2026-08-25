@@ -1,6 +1,10 @@
+import http from 'http';
 import app from './app.ts';
 import { AppDataSource } from './data-source.ts';
 import { redisClient } from './redis-client.ts';
+import { initSocket } from './sockets/index.ts';
+
+const server = http.createServer(app);
 
 process.on('uncaughtException', (err: Error) => {
   console.log('UNCAUGHT EXCEPTION! Shutting down...');
@@ -18,7 +22,9 @@ const startServer = async () => {
     await redisClient.connect();
     console.log('Redis connected successfully!');
 
-    const server = app.listen(port, () => {
+    initSocket(server);
+
+    server.listen(port, () => {
       console.log(`App running on port ${port}`);
     });
 

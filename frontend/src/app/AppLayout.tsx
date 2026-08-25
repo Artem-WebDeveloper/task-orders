@@ -26,7 +26,7 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-svh flex-col">
-      <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b bg-background px-4 sm:h-16 sm:px-6">
+      <header className="bg-background sticky top-0 z-20 flex h-14 items-center justify-between border-b px-4 sm:h-16 sm:px-6">
         <div className="flex items-center gap-3 text-center">
           <div className="border-primary/15 bg-primary/10 grid size-8 place-items-center rounded-xl border shadow-xs sm:size-9">
             <ClipboardList className="text-primary size-4 sm:size-5" />
@@ -41,9 +41,7 @@ export function AppLayout() {
           <div className="border-muted-foreground/50 hidden items-center border-r pr-4 sm:flex">
             <div>
               <p className="text-sm font-medium">{user.fullname}</p>
-              <p className="text-muted-foreground text-xs">
-                {user.role.name}
-              </p>
+              <p className="text-muted-foreground text-xs">{user.role.name}</p>
             </div>
           </div>
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
@@ -81,17 +79,15 @@ export function AppLayout() {
         </main>
       </div>
 
-      <nav className="bg-background border-t fixed bottom-0 inset-x-0 z-20 flex justify-around px-2 py-2 lg:hidden">
+      <nav className="bg-background fixed inset-x-0 bottom-0 z-20 flex justify-around border-t px-2 py-2 lg:hidden">
         {navItems.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }: { isActive: boolean }) =>
               [
-                "flex flex-col items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors min-w-[4rem]",
-                isActive
-                  ? "text-primary"
-                  : "text-muted-foreground",
+                "flex min-w-16 flex-col items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                isActive ? "text-primary" : "text-muted-foreground",
               ].join(" ")
             }
           >

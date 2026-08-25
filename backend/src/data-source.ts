@@ -11,7 +11,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME || 'task_orders',
   synchronize: false,
-  logging: true,
+  logging: false,
   entities: [Role, User, Order],
   subscribers: [],
   migrations: [],
