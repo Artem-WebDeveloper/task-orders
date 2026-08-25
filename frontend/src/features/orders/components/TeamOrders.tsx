@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type { ApiOrder } from "@/shared/api/types";
-import { ApiError } from "@/shared/api/http";
+import { QueryError } from "@/shared/ui/query-error";
 import { formatExecutionAt } from "../lib/format";
 import { useChangeOrderStatus, useOrders } from "../hooks/useOrders";
 import { OrderStatusBadge } from "./OrderStatusBadge";
-import { OrderCompleteDialog } from "./OrderCompleteDialog";
+import { ConfirmActionDialog } from "./ConfirmActionDialog";
 import { OrderDetailsDialog } from "./OrderDetailsDialog";
 
 import { Button } from "@/shared/ui/button";
@@ -53,18 +53,7 @@ export function TeamOrders() {
         <p className="text-muted-foreground text-sm">Загрузка нарядов...</p>
       )}
 
-      {ordersQuery.error instanceof ApiError &&
-        ordersQuery.error.status === 401 && (
-          <p className="text-destructive text-sm">
-            Сессия истекла. Обновите страницу.
-          </p>
-        )}
-      {ordersQuery.error instanceof ApiError &&
-        ordersQuery.error.status !== 401 && (
-          <p className="text-destructive text-sm">
-            {ordersQuery.error.message}
-          </p>
-        )}
+      {ordersQuery.error && <QueryError error={ordersQuery.error} />}
 
       {actionError && <p className="text-destructive text-sm">{actionError}</p>}
 
@@ -157,9 +146,24 @@ export function TeamOrders() {
         </>
       )}
 
-      <OrderCompleteDialog
-        order={completingOrder}
+      <ConfirmActionDialog
+        open={!!completingOrder}
         onOpenChange={(open) => !open && setCompletingOrder(null)}
+        title="Выполнить наряд?"
+        description={
+          completingOrder
+            ? `Наряд по адресу «${completingOrder.address}» от ${formatExecutionAt(completingOrder.executionAt)} будет отмечен как выполненный.`
+            : ""
+        }
+        confirmLabel="Выполнить"
+        pendingLabel="Выполняем..."
+        onConfirm={async () => {
+          if (!completingOrder) return;
+          await changeStatus.mutateAsync({
+            uuid: completingOrder.uuid,
+            status: "done",
+          });
+        }}
       />
       <OrderDetailsDialog
         order={viewingOrder}

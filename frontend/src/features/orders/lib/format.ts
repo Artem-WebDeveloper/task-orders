@@ -7,6 +7,14 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   done: "Выполнен",
 };
 
+export const ORDER_FILTER_OPTIONS = [
+  { value: "all" as const, label: "Все статусы" },
+  ...Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => ({
+    value: value as OrderStatus,
+    label,
+  })),
+];
+
 /** ISO-строка из API → «05.07.2026 12:00». */
 export function formatExecutionAt(iso: string): string {
   return format(parseISO(iso), "dd.MM.yyyy HH:mm");

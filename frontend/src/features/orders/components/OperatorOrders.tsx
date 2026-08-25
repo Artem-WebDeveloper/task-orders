@@ -1,14 +1,14 @@
 import { useState } from "react";
 import type { OrderStatus } from "@task-orders/shared";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 
-import { ApiError } from "@/shared/api/http";
 import type { ApiOrder } from "@/shared/api/types";
-import { formatExecutionAt, ORDER_STATUS_LABELS } from "../lib/format";
-import { useOrders } from "../hooks/useOrders";
+import { QueryError } from "@/shared/ui/query-error";
+import { formatExecutionAt, ORDER_FILTER_OPTIONS } from "../lib/format";
+import { useDeleteOrder, useOrders } from "../hooks/useOrders";
 import { OrderFormDialog } from "./OrderFormDialog";
-import { OrderDeleteDialog } from "./OrderDeleteDialog";
-import { OrderStatusBadge } from "./OrderStatusBadge";
+import { ConfirmActionDialog } from "./ConfirmActionDialog";
+import { OrderRow } from "./OrderRow";
 import { OrderDetailsDialog } from "./OrderDetailsDialog";
 
 import { Button } from "@/shared/ui/button";
@@ -22,7 +22,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -30,15 +29,9 @@ import {
 
 type StatusFilter = "all" | OrderStatus;
 
-const FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
-  { value: "all", label: "Все статусы" },
-  ...(Object.entries(ORDER_STATUS_LABELS) as [OrderStatus, string][]).map(
-    ([value, label]) => ({ value, label }),
-  ),
-];
-
 export function OperatorOrders() {
   const ordersQuery = useOrders();
+  const deleteOrder = useDeleteOrder();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [formOpen, setFormOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<ApiOrder | null>(null);
@@ -71,7 +64,7 @@ export function OperatorOrders() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {FILTER_OPTIONS.map(({ value, label }) => (
+              {ORDER_FILTER_OPTIONS.map(({ value, label }) => (
                 <SelectItem key={value} value={value}>
                   {label}
                 </SelectItem>
@@ -89,18 +82,7 @@ export function OperatorOrders() {
         <p className="text-muted-foreground text-sm">Загрузка нарядов...</p>
       )}
 
-      {ordersQuery.error instanceof ApiError &&
-        ordersQuery.error.status === 401 && (
-          <p className="text-destructive text-sm">
-            Сессия истекла. Обновите страницу.
-          </p>
-        )}
-      {ordersQuery.error instanceof ApiError &&
-        ordersQuery.error.status !== 401 && (
-          <p className="text-destructive text-sm">
-            {ordersQuery.error.message}
-          </p>
-        )}
+      {ordersQuery.error && <QueryError error={ordersQuery.error} />}
 
       {!ordersQuery.isPending && !ordersQuery.error && (
         <>
@@ -109,9 +91,7 @@ export function OperatorOrders() {
               <TableRow>
                 <TableHead>Дата</TableHead>
                 <TableHead>Адрес</TableHead>
-                <TableHead className="hidden sm:table-cell">
-                  Описание
-                </TableHead>
+                <TableHead className="hidden sm:table-cell">Описание</TableHead>
                 <TableHead>Статус</TableHead>
                 <TableHead className="hidden md:table-cell">
                   Исполнитель
@@ -121,61 +101,16 @@ export function OperatorOrders() {
             </TableHeader>
             <TableBody>
               {filteredOrders.map((order) => (
-                <TableRow
+                <OrderRow
                   key={order.uuid}
-                  tabIndex={0}
-                  className="cursor-pointer"
+                  order={order}
                   onClick={() => setViewingOrder(order)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setViewingOrder(order);
-                    }
+                  onEdit={() => {
+                    setEditingOrder(order);
+                    setFormOpen(true);
                   }}
-                >
-                  <TableCell className="whitespace-nowrap">
-                    {formatExecutionAt(order.executionAt)}
-                  </TableCell>
-                  <TableCell className="max-w-48 truncate font-medium">
-                    {order.address}
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell max-w-72 whitespace-normal">
-                    <p className="text-muted-foreground line-clamp-1 wrap-anywhere">
-                      {order.description}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <OrderStatusBadge status={order.status} />
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {order.assignee?.fullname ?? "—"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Редактировать"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingOrder(order);
-                        setFormOpen(true);
-                      }}
-                    >
-                      <Pencil />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Удалить"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeletingOrder(order);
-                      }}
-                    >
-                      <Trash2 className="text-destructive" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
+                  onDelete={() => setDeletingOrder(order)}
+                />
               ))}
             </TableBody>
           </Table>
@@ -204,9 +139,22 @@ export function OperatorOrders() {
         onOpenChange={setFormOpen}
         order={editingOrder}
       />
-      <OrderDeleteDialog
-        order={deletingOrder}
+      <ConfirmActionDialog
+        open={!!deletingOrder}
         onOpenChange={(open) => !open && setDeletingOrder(null)}
+        title="Удалить наряд?"
+        description={
+          deletingOrder
+            ? `Наряд по адресу «${deletingOrder.address}» от ${formatExecutionAt(deletingOrder.executionAt)} будет удалён безвозвратно.`
+            : ""
+        }
+        confirmLabel="Удалить"
+        pendingLabel="Удаляем..."
+        variant="destructive"
+        onConfirm={async () => {
+          if (!deletingOrder) return;
+          await deleteOrder.mutateAsync(deletingOrder.uuid);
+        }}
       />
       <OrderDetailsDialog
         order={viewingOrder}

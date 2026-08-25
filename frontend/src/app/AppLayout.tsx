@@ -1,7 +1,8 @@
-import { NavLink, Outlet, useNavigate } from "react-router";
+import { NavLink, Outlet } from "react-router";
 import { ClipboardList, LogOut, Users } from "lucide-react";
 
 import { useAuth } from "@/features/auth";
+import { useSignOut } from "@/features/auth/hooks/useSignOut";
 import { ROLE_HOME } from "./paths";
 
 import { Button } from "@/shared/ui/button";
@@ -16,17 +17,12 @@ const NAV_BY_ROLE = {
 } as const;
 
 export function AppLayout() {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const handleSignOut = useSignOut();
 
   if (!user) return null;
 
   const navItems = NAV_BY_ROLE[user.role.code];
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/login", { replace: true });
-  };
 
   return (
     <div className="flex min-h-svh flex-col">
