@@ -1,6 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-
-import { listTeams, teamsQueryKey } from "../api";
+import { useTeams } from "../hooks/useTeams";
 
 import {
   Table,
@@ -12,10 +10,7 @@ import {
 } from "@/shared/ui/table";
 
 export function TeamsList() {
-  const teamsQuery = useQuery({
-    queryKey: teamsQueryKey,
-    queryFn: listTeams,
-  });
+  const teamsQuery = useTeams();
 
   return (
     <div className="grid gap-4">
