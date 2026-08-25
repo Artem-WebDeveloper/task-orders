@@ -1,30 +1,17 @@
 import { useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { format, parseISO } from "date-fns";
-import { ru } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
-import {
-  createOrderSchema,
-  ORDER_STATUSES,
-  type OrderStatus,
-} from "@task-orders/shared";
+import { ORDER_STATUSES, type OrderStatus } from "@task-orders/shared";
 
-import { listTeams, teamsQueryKey } from "@/features/teams";
+import { useTeams } from "@/features/teams";
 import type { ApiOrder } from "@/shared/api/types";
-import {
-  joinDateTimeLocal,
-  splitDateTimeLocal,
-  toDatetimeLocalValue,
-  ORDER_STATUS_LABELS,
-} from "../lib/format";
-import { useCreateOrder, useUpdateOrder } from "../hooks/useOrders";
+import { ORDER_STATUS_LABELS } from "../lib/format";
+import { orderFormSchema, buildOrderDefaults, NO_ASSIGNEE } from "../lib/schemas";
+import type { OrderFormValues } from "../lib/schemas";
+import { useOrderSubmit } from "../hooks/useOrderSubmit";
 
 import { Button } from "@/shared/ui/button";
-import { Calendar } from "@/shared/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
+import { DateTimeField } from "@/shared/ui/date-time-field";
 import {
   Dialog,
   DialogContent,
@@ -51,18 +38,6 @@ import {
 } from "@/shared/ui/select";
 import { Textarea } from "@/shared/ui/textarea";
 
-const orderFormSchema = z.object({
-  assignee: z.uuid({ message: "Некорректный исполнитель" }).or(z.literal("")),
-  executionAt: z.string().min(1, "Укажите дату выполнения"),
-  address: createOrderSchema.shape.address,
-  description: createOrderSchema.shape.description,
-  status: createOrderSchema.shape.status,
-});
-
-type OrderFormValues = z.infer<typeof orderFormSchema>;
-
-const NO_ASSIGNEE = "";
-
 interface OrderFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -76,20 +51,10 @@ export function OrderFormDialog({
 }: OrderFormDialogProps) {
   const isEdit = !!order;
 
-  const teamsQuery = useQuery({
-    queryKey: teamsQueryKey,
-    queryFn: listTeams,
-    enabled: open,
-  });
+  const teamsQuery = useTeams(open);
 
   const defaultValues = useMemo<OrderFormValues>(
-    () => ({
-      assignee: order?.assignee?.uuid ?? NO_ASSIGNEE,
-      executionAt: order ? toDatetimeLocalValue(order.executionAt) : "",
-      address: order?.address ?? "",
-      description: order?.description ?? "",
-      status: order?.status ?? "new",
-    }),
+    () => buildOrderDefaults(order),
     [order],
   );
 
@@ -102,29 +67,7 @@ export function OrderFormDialog({
     if (open) form.reset(defaultValues);
   }, [open, defaultValues, form]);
 
-  const createMutation = useCreateOrder();
-  const updateMutation = useUpdateOrder(order?.uuid ?? "");
-  const mutation = isEdit ? updateMutation : createMutation;
-
-  const onSubmit = form.handleSubmit(async (values) => {
-    const dto = {
-      assignee: values.assignee === NO_ASSIGNEE ? null : values.assignee,
-      executionAt: new Date(values.executionAt),
-      address: values.address,
-      description: values.description,
-      status: values.status,
-    };
-
-    try {
-      await mutation.mutateAsync(dto);
-      onOpenChange(false);
-    } catch (error) {
-      form.setError("root", {
-        message:
-          error instanceof Error ? error.message : "Не удалось сохранить наряд",
-      });
-    }
-  });
+  const { onSubmit, isPending } = useOrderSubmit(order, form, onOpenChange);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -145,62 +88,9 @@ export function OrderFormDialog({
             <FormField
               control={form.control}
               name="executionAt"
-              render={({ field }) => {
-                const { date: datePart, time: timePart } = splitDateTimeLocal(
-                  field.value,
-                );
-                const selectedDate = datePart ? parseISO(datePart) : undefined;
-
-                return (
-                  <FormItem>
-                    <FormLabel>Дата выполнения</FormLabel>
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              data-empty={!datePart}
-                              className="data-[empty=true]:text-muted-foreground w-full justify-start text-left font-normal sm:w-[70%]"
-                            >
-                              <CalendarIcon />
-                              {selectedDate
-                                ? format(selectedDate, "d MMMM yyyy", {
-                                    locale: ru,
-                                  })
-                                : "Выберите дату"}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            locale={ru}
-                            selected={selectedDate}
-                            onSelect={(day) =>
-                              field.onChange(joinDateTimeLocal(day, timePart))
-                            }
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <Input
-                        className="w-full sm:flex-1"
-                        type="time"
-                        aria-label="Время выполнения"
-                        value={timePart}
-                        disabled={!datePart}
-                        onChange={(e) =>
-                          field.onChange(
-                            joinDateTimeLocal(selectedDate, e.target.value),
-                          )
-                        }
-                      />
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
+              render={({ field }) => (
+                <DateTimeField value={field.value} onChange={field.onChange} />
+              )}
             />
 
             <FormField
@@ -308,8 +198,8 @@ export function OrderFormDialog({
               >
                 Отмена
               </Button>
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Сохраняем..." : "Сохранить"}
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Сохраняем..." : "Сохранить"}
               </Button>
             </DialogFooter>
           </form>
