@@ -65,7 +65,9 @@ export const update = async (orderId: string, updatedData: UpdateOrderDto) => {
   }
 
   const assigneeUser = await resolveAssignee(updatedData.assignee);
-  orderRepo.merge(order, { ...updatedData, assignee: assigneeUser });
+  const { assignee: _assignee, ...rest } = updatedData;
+  orderRepo.merge(order, rest);
+  order.assignee = assigneeUser ?? null;
 
   return orderRepo.save(order);
 };

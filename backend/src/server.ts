@@ -3,6 +3,7 @@ import app from './app.ts';
 import { AppDataSource } from './data-source.ts';
 import { redisClient } from './redis-client.ts';
 import { initSocket } from './sockets/index.ts';
+import { seedIfEmpty } from './seed.ts';
 
 const server = http.createServer(app);
 
@@ -18,6 +19,8 @@ const startServer = async () => {
   try {
     await AppDataSource.initialize();
     console.log('Database connected successfully!');
+
+    await seedIfEmpty();
 
     await redisClient.connect();
     console.log('Redis connected successfully!');

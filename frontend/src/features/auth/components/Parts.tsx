@@ -17,5 +17,5 @@ export function StepDots({ active }: { active: 0 | 1 }) {
 }
 
 export function MessageSlot({ children }: { children?: React.ReactNode }) {
-  return <p>{children}</p>;
+  return <div>{children}</div>;
 }

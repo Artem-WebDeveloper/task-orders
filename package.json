@@ -19,12 +19,14 @@
     "packages/shared"
   ],
   "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "npm run dev -w backend",
     "dev:frontend": "npm run dev -w frontend",
     "lint": "npm run lint -w backend && npm run lint -w frontend",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\" --ignore-path .prettierignore"
   },
   "devDependencies": {
+    "concurrently": "^10.0.5",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.9.6"
   }
