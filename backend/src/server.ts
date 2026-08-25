@@ -29,6 +29,10 @@ const startServer = async () => {
 
     server.listen(port, () => {
       console.log(`App running on port ${port}`);
+      console.log('========================================');
+      console.log(`  Open ${process.env.CLIENT_URL || 'http://localhost:5173'} to get started`);
+      console.log('  2FA codes will appear here during login');
+      console.log('========================================');
     });
 
     process.on('unhandledRejection', (err: Error) => {
