@@ -128,7 +128,7 @@ export function OrderFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Редактирование наряда" : "Новый наряд"}
@@ -154,7 +154,7 @@ export function OrderFormDialog({
                 return (
                   <FormItem>
                     <FormLabel>Дата выполнения</FormLabel>
-                    <div className="flex gap-3">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -162,7 +162,7 @@ export function OrderFormDialog({
                               type="button"
                               variant="outline"
                               data-empty={!datePart}
-                              className="data-[empty=true]:text-muted-foreground w-[70%] justify-start text-left font-normal"
+                              className="data-[empty=true]:text-muted-foreground w-full justify-start text-left font-normal sm:w-[70%]"
                             >
                               <CalendarIcon />
                               {selectedDate
@@ -185,7 +185,7 @@ export function OrderFormDialog({
                         </PopoverContent>
                       </Popover>
                       <Input
-                        className="flex-1"
+                        className="w-full sm:flex-1"
                         type="time"
                         aria-label="Время выполнения"
                         value={timePart}
@@ -227,6 +227,7 @@ export function OrderFormDialog({
                     <Textarea
                       placeholder='Например: "Замена счётчика"'
                       rows={3}
+                      className="max-h-40 overflow-y-auto"
                       {...field}
                     />
                   </FormControl>

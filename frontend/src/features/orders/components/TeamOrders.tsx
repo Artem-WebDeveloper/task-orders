@@ -73,9 +73,11 @@ export function TeamOrders() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Дата выполнения</TableHead>
+                <TableHead>Дата</TableHead>
                 <TableHead>Адрес</TableHead>
-                <TableHead>Описание</TableHead>
+                <TableHead className="hidden sm:table-cell">
+                  Описание
+                </TableHead>
                 <TableHead>Статус</TableHead>
                 <TableHead className="w-32 text-right">Действие</TableHead>
               </TableRow>
@@ -100,7 +102,7 @@ export function TeamOrders() {
                   <TableCell className="max-w-48 truncate font-medium">
                     {order.address}
                   </TableCell>
-                  <TableCell className="max-w-72 whitespace-normal">
+                  <TableCell className="hidden sm:table-cell max-w-72 whitespace-normal">
                     <p className="text-muted-foreground line-clamp-1 wrap-anywhere">
                       {order.description}
                     </p>

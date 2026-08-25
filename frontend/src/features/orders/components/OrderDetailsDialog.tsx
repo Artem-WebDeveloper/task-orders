@@ -17,7 +17,6 @@ interface OrderDetailsDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-/** Просмотр наряда целиком: описание и адрес показываются без обрезки. */
 export function OrderDetailsDialog({
   order,
   onOpenChange,

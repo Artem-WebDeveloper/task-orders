@@ -58,7 +58,7 @@ export function OperatorOrders() {
 
   return (
     <div className="grid gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-semibold">Наряды</h1>
         <div className="flex items-center gap-2">
           <Select
@@ -67,7 +67,7 @@ export function OperatorOrders() {
               setStatusFilter(value as StatusFilter)
             }
           >
-            <SelectTrigger className="w-44">
+            <SelectTrigger className="w-36 sm:w-44">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -107,11 +107,15 @@ export function OperatorOrders() {
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead>Дата выполнения</TableHead>
+                <TableHead>Дата</TableHead>
                 <TableHead>Адрес</TableHead>
-                <TableHead>Описание</TableHead>
+                <TableHead className="hidden sm:table-cell">
+                  Описание
+                </TableHead>
                 <TableHead>Статус</TableHead>
-                <TableHead>Исполнитель</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Исполнитель
+                </TableHead>
                 <TableHead className="w-24 text-right">Действия</TableHead>
               </TableRow>
             </TableHeader>
@@ -135,7 +139,7 @@ export function OperatorOrders() {
                   <TableCell className="max-w-48 truncate font-medium">
                     {order.address}
                   </TableCell>
-                  <TableCell className="max-w-72 whitespace-normal">
+                  <TableCell className="hidden sm:table-cell max-w-72 whitespace-normal">
                     <p className="text-muted-foreground line-clamp-1 wrap-anywhere">
                       {order.description}
                     </p>
@@ -143,7 +147,9 @@ export function OperatorOrders() {
                   <TableCell>
                     <OrderStatusBadge status={order.status} />
                   </TableCell>
-                  <TableCell>{order.assignee?.fullname ?? "—"}</TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {order.assignee?.fullname ?? "—"}
+                  </TableCell>
                   <TableCell className="text-right">
                     <Button
                       variant="ghost"

@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-import type { ApiOrder } from '@/shared/api/types';
-import { formatExecutionAt } from '../lib/format';
-import { useChangeOrderStatus } from '../hooks/useOrders';
+import type { ApiOrder } from "@/shared/api/types";
+import { formatExecutionAt } from "../lib/format";
+import { useChangeOrderStatus } from "../hooks/useOrders";
 
-import { Button } from '@/shared/ui/button';
+import { Button } from "@/shared/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,19 +12,20 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/shared/ui/dialog';
+} from "@/shared/ui/dialog";
 
 interface OrderCompleteDialogProps {
   order: ApiOrder | null;
   onOpenChange: (open: boolean) => void;
 }
 
-/** Модалка выполнения наряда: подтверждает перевод in_progress -> done. */
-export function OrderCompleteDialog({ order, onOpenChange }: OrderCompleteDialogProps) {
+export function OrderCompleteDialog({
+  order,
+  onOpenChange,
+}: OrderCompleteDialogProps) {
   const changeStatus = useChangeOrderStatus();
   const [error, setError] = useState<string | null>(null);
 
-  // Сбрасываем ошибку при смене наряда (паттерн из доков React: setState во время рендера).
   const [prevOrder, setPrevOrder] = useState(order);
   if (prevOrder !== order) {
     setPrevOrder(order);
@@ -34,10 +35,10 @@ export function OrderCompleteDialog({ order, onOpenChange }: OrderCompleteDialog
   const handleComplete = async () => {
     if (!order) return;
     try {
-      await changeStatus.mutateAsync({ uuid: order.uuid, status: 'done' });
+      await changeStatus.mutateAsync({ uuid: order.uuid, status: "done" });
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Не удалось выполнить наряд');
+      setError(e instanceof Error ? e.message : "Не удалось выполнить наряд");
     }
   };
 
@@ -47,14 +48,18 @@ export function OrderCompleteDialog({ order, onOpenChange }: OrderCompleteDialog
         <DialogHeader>
           <DialogTitle>Выполнить наряд?</DialogTitle>
           <DialogDescription>
-            Наряд по адресу «{order?.address}» от{' '}
+            Наряд по адресу «{order?.address}» от{" "}
             {order && formatExecutionAt(order.executionAt)} будет отмечен как
             выполненный.
           </DialogDescription>
         </DialogHeader>
         {error && <p className="text-destructive text-sm">{error}</p>}
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
             Отмена
           </Button>
           <Button
@@ -62,7 +67,7 @@ export function OrderCompleteDialog({ order, onOpenChange }: OrderCompleteDialog
             onClick={handleComplete}
             disabled={changeStatus.isPending}
           >
-            {changeStatus.isPending ? 'Выполняем...' : 'Выполнить'}
+            {changeStatus.isPending ? "Выполняем..." : "Выполнить"}
           </Button>
         </DialogFooter>
       </DialogContent>
