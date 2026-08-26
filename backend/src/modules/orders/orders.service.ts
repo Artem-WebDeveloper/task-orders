@@ -35,7 +35,7 @@ export const findOne = async (currentUser: User, orderId: string) => {
   });
 
   if (!order) {
-    throw new AppError('Order not found', 404);
+    throw new AppError('Заказ не найден', 404);
   }
 
   return order;
@@ -61,7 +61,7 @@ export const update = async (orderId: string, updatedData: UpdateOrderDto) => {
     relations: { assignee: true },
   });
   if (!order) {
-    throw new AppError('Order not found', 404);
+    throw new AppError('Заказ не найден', 404);
   }
 
   const assigneeUser = await resolveAssignee(updatedData.assignee);
@@ -79,7 +79,7 @@ export const remove = async (orderId: string) => {
   });
 
   if (!order) {
-    throw new AppError('Order not found', 404);
+    throw new AppError('Заказ не найден', 404);
   }
 
   await orderRepo.remove(order);
@@ -94,15 +94,15 @@ export const changeStatus = async (orderId: string, newStatus: OrderStatus, curr
   });
 
   if (!order) {
-    throw new AppError('Order not found', 404);
+    throw new AppError('Заказ не найден', 404);
   }
 
   if (order.assignee?.uuid !== currentUser.uuid) {
-    throw new AppError('You are not assigned to this order', 403);
+    throw new AppError('Вы не назначены на этот заказ', 403);
   }
 
   if (!canTransition(order.status, newStatus)) {
-    throw new AppError(`Cannot transition from ${order.status} to ${newStatus}`, 400);
+    throw new AppError(`Невозможно изменить статус с ${order.status} на ${newStatus}`, 400);
   }
 
   order.status = newStatus;
@@ -114,6 +114,6 @@ async function resolveAssignee(assigneeInput: string | null | undefined) {
   if (assigneeInput === null) return null;
 
   const user = await userRepo.findOneBy({ uuid: assigneeInput });
-  if (!user) throw new AppError('Assignee not found', 404);
+  if (!user) throw new AppError('Исполнитель не найден', 404);
   return user;
 }

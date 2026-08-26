@@ -21,7 +21,7 @@ export const requestLogin = async ({ phone, password }: LoginUserDto) => {
   });
 
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-    throw new AppError('Invalid login or password', 401);
+    throw new AppError('Неверный логин или пароль', 401);
   }
 
   const code = crypto.randomInt(100000, 1000000).toString();
@@ -36,7 +36,7 @@ export const verifyCode = async ({ verifyCode, userId }: VerifyCodeDto) => {
   const authCode = await redisClient.get(`verify:${userId}`);
 
   if (authCode !== verifyCode) {
-    throw new AppError('Incorrect or expired verify code! Please log in again!', 401);
+    throw new AppError('Неверный или просроченный код! Повторите вход!', 401);
   }
 
   await redisClient.del(`verify:${userId}`);

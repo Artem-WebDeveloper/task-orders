@@ -26,7 +26,7 @@ function sendErrorProd(err: CustomError, res: Response) {
 
     res.status(500).json({
       status: 'error',
-      message: 'Something went wrong!',
+      message: 'Что-то пошло не так!',
     });
   }
 }

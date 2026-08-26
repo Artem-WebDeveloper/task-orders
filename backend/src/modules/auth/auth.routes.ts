@@ -8,7 +8,7 @@ import { protect } from '../../middlewares/auth.middleware.ts';
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 30,
-  message: 'Too many login attempts, please try again later',
+  message: 'Слишком много попыток, попробуйте позже',
 });
 
 const router = express.Router();
