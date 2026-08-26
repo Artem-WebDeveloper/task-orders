@@ -13,10 +13,14 @@ export const findAll = async (currentUser: User) => {
     return await orderRepo.find({
       relations: { assignee: true },
       where: { assignee: { uuid: currentUser.uuid } },
+      order: { executionAt: 'DESC' },
     });
   }
 
-  return await orderRepo.find({ relations: { assignee: true } });
+  return await orderRepo.find({
+    relations: { assignee: true },
+    order: { executionAt: 'DESC' },
+  });
 };
 
 export const findOne = async (currentUser: User, orderId: string) => {
@@ -31,7 +35,7 @@ export const findOne = async (currentUser: User, orderId: string) => {
   });
 
   if (!order) {
-    throw new AppError('Order not found', 404);
+    throw new AppError('Заказ не найден', 404);
   }
 
   return order;
@@ -57,21 +61,30 @@ export const update = async (orderId: string, updatedData: UpdateOrderDto) => {
     relations: { assignee: true },
   });
   if (!order) {
-    throw new AppError('Order not found', 404);
+    throw new AppError('Заказ не найден', 404);
   }
 
   const assigneeUser = await resolveAssignee(updatedData.assignee);
-  orderRepo.merge(order, { ...updatedData, assignee: assigneeUser });
+  const { assignee: _assignee, ...rest } = updatedData;
+  orderRepo.merge(order, rest);
+  order.assignee = assigneeUser ?? null;
 
   return orderRepo.save(order);
 };
 
 export const remove = async (orderId: string) => {
-  const result = await orderRepo.delete({ uuid: orderId });
+  const order = await orderRepo.findOne({
+    where: { uuid: orderId },
+    relations: { assignee: true },
+  });
 
-  if (result.affected === 0) {
-    throw new AppError('Order not found', 404);
+  if (!order) {
+    throw new AppError('Заказ не найден', 404);
   }
+
+  await orderRepo.remove(order);
+
+  return order;
 };
 
 export const changeStatus = async (orderId: string, newStatus: OrderStatus, currentUser: User) => {
@@ -81,15 +94,15 @@ export const changeStatus = async (orderId: string, newStatus: OrderStatus, curr
   });
 
   if (!order) {
-    throw new AppError('Order not found', 404);
+    throw new AppError('Заказ не найден', 404);
   }
 
   if (order.assignee?.uuid !== currentUser.uuid) {
-    throw new AppError('You are not assigned to this order', 403);
+    throw new AppError('Вы не назначены на этот заказ', 403);
   }
 
   if (!canTransition(order.status, newStatus)) {
-    throw new AppError(`Cannot transition from ${order.status} to ${newStatus}`, 400);
+    throw new AppError(`Невозможно изменить статус с ${order.status} на ${newStatus}`, 400);
   }
 
   order.status = newStatus;
@@ -101,6 +114,6 @@ async function resolveAssignee(assigneeInput: string | null | undefined) {
   if (assigneeInput === null) return null;
 
   const user = await userRepo.findOneBy({ uuid: assigneeInput });
-  if (!user) throw new AppError('Assignee not found', 404);
+  if (!user) throw new AppError('Исполнитель не найден', 404);
   return user;
 }

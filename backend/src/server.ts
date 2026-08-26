@@ -1,6 +1,11 @@
+import http from 'http';
 import app from './app.ts';
 import { AppDataSource } from './data-source.ts';
 import { redisClient } from './redis-client.ts';
+import { initSocket } from './sockets/index.ts';
+import { seedIfEmpty } from './seed.ts';
+
+const server = http.createServer(app);
 
 process.on('uncaughtException', (err: Error) => {
   console.log('UNCAUGHT EXCEPTION! Shutting down...');
@@ -15,11 +20,19 @@ const startServer = async () => {
     await AppDataSource.initialize();
     console.log('Database connected successfully!');
 
+    await seedIfEmpty();
+
     await redisClient.connect();
     console.log('Redis connected successfully!');
 
-    const server = app.listen(port, () => {
+    initSocket(server);
+
+    server.listen(port, () => {
       console.log(`App running on port ${port}`);
+      console.log('========================================');
+      console.log(`  Open ${process.env.CLIENT_URL || 'http://localhost:5173'} to get started`);
+      console.log('  2FA codes will appear here during login');
+      console.log('========================================');
     });
 
     process.on('unhandledRejection', (err: Error) => {

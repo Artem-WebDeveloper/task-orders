@@ -21,7 +21,7 @@ export function validateParams(schema: z.ZodType) {
   return (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req.params);
     if (!result.success) {
-      return next(new AppError('Invalid order id', 400));
+      return next(new AppError('Некорректный ID заказа', 400));
     }
     next();
   };

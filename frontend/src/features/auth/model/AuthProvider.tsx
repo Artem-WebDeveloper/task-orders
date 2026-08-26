@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ApiError, tokenStorage } from "@/shared/api/http";
 import * as authApi from "../api";
 
 import { AuthContext } from "./context";
+import { connectSocket, disconnectSocket } from "@/shared/socket/socketClient";
+import { getAuthStatus } from "../lib/getAuthStatus";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
@@ -29,16 +31,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
   });
 
+  const status = getAuthStatus(token, meQuery.isPending, meQuery.isError);
+
   const value = useMemo(
     () => ({
-      status: (!token
-        ? "unauthenticated"
-        : meQuery.isPending
-          ? "loading"
-          : meQuery.isError
-            ? "unauthenticated"
-            : "authenticated") as
-        "loading" | "authenticated" | "unauthenticated",
+      status,
       user: meQuery.data ?? null,
       signIn(nextToken: string) {
         tokenStorage.set(nextToken);
@@ -55,8 +52,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setToken(null);
       },
     }),
-    [token, meQuery.isPending, meQuery.isError, meQuery.data, queryClient],
+    [status, queryClient, meQuery.data],
   );
+
+  useEffect(() => {
+    if (status === "authenticated" && token) {
+      connectSocket(token);
+      return () => disconnectSocket();
+    }
+  }, [status, token]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

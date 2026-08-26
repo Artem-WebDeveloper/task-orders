@@ -19,12 +19,18 @@
     "packages/shared"
   ],
   "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "npm run dev -w backend",
     "dev:frontend": "npm run dev -w frontend",
     "lint": "npm run lint -w backend && npm run lint -w frontend",
-    "format": "prettier --write \"**/*.{ts,tsx,json,md}\" --ignore-path .prettierignore"
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\" --ignore-path .prettierignore",
+    "demo": "docker compose up --build",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f backend"
   },
   "devDependencies": {
+    "concurrently": "^10.0.5",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.9.6"
   }

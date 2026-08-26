@@ -20,13 +20,13 @@ export const protect = catchAsync(async (req: Request, res: Response, next: Next
   }
 
   if (!token) {
-    return next(new AppError('You are not logged in! Please log in to get access.', 401));
+    return next(new AppError('Вы не авторизованы. Войдите в систему.', 401));
   }
 
   const userId = await redisClient.get(`session:${token}`);
 
   if (!userId) {
-    throw new AppError('Session expired or invalid, please log in again', 401);
+    throw new AppError('Сессия истекла. Войдите заново.', 401);
   }
 
   jwt.verify(token, process.env.JWT_SECRET);
@@ -36,7 +36,7 @@ export const protect = catchAsync(async (req: Request, res: Response, next: Next
   });
 
   if (!currentUser) {
-    throw new AppError('User no longer exists', 401);
+    throw new AppError('Пользователь не найден', 401);
   }
 
   req.user = currentUser;
@@ -48,7 +48,7 @@ export const protect = catchAsync(async (req: Request, res: Response, next: Next
 export const restrictTo = (...roles: RoleCode[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role.code)) {
-      return next(new AppError('You do not have permission to perform this action', 403));
+      return next(new AppError('Недостаточно прав для этого действия', 403));
     }
 
     next();

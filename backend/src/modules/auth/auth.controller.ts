@@ -9,7 +9,7 @@ export const login = catchAsync(async (req: Request, res: Response) => {
 
 export const confirmLogin = catchAsync(async (req: Request, res: Response) => {
   const token = await authService.verifyCode(req.body);
-  res.status(200).json({ status: 'success', message: 'You are logged in', token });
+  res.status(200).json({ status: 'success', message: 'Вы вошли в систему', token });
 });
 
 export const logout = catchAsync(async (req: Request, res: Response) => {

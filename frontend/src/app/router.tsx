@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createBrowserRouter } from "react-router";
 
 import { AppLayout } from "./AppLayout";
@@ -7,16 +8,27 @@ import {
   RequireRole,
   RoleHomeRedirect,
 } from "./Guards";
-import { LoginPage } from "@/pages/LoginPage";
-import { NotFoundPage } from "@/pages/NotFoundPage";
-import { OperatorOrdersPage } from "@/pages/OperatorOrdersPage";
-import { OperatorTeamsPage } from "@/pages/OperatorTeamsPage";
-import { TeamOrdersPage } from "@/pages/TeamOrdersPage";
+import {
+  LoginPage,
+  NotFoundPage,
+  OperatorOrdersPage,
+  OperatorTeamsPage,
+  TeamOrdersPage,
+} from "./lazy";
 
 export const router = createBrowserRouter([
   {
     element: <GuestGuard />,
-    children: [{ path: "/login", element: <LoginPage /> }],
+    children: [
+      {
+        path: "/login",
+        element: (
+          <Suspense fallback={null}>
+            <LoginPage />
+          </Suspense>
+        ),
+      },
+    ],
   },
 
   {
@@ -45,5 +57,12 @@ export const router = createBrowserRouter([
     ],
   },
 
-  { path: "*", element: <NotFoundPage /> },
+  {
+    path: "*",
+    element: (
+      <Suspense fallback={null}>
+        <NotFoundPage />
+      </Suspense>
+    ),
+  },
 ]);
